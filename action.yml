@@ -9,10 +9,19 @@ inputs:
     description: 'terraform workspace'
     required: true
     default: 'default'
+  aws_access_key_id:
+    description: 'aws access key id'
+    required: true
+  aws_secret_access_key:
+    description: 'aws secret access key'
+    required: true
 
 runs:
   using: 'docker'
   image: 'Dockerfile'
+  env:
+    AWS_ACCESS_KEY_ID: ${{ inputs.aws_access_key_id }}
+    AWS_SECRET_ACCESS_KEY: ${{ inputs.aws_secret_access_key }}
   args:
     - ${{ inputs.path }}
     - ${{ inputs.workspace }}
