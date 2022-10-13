@@ -4,7 +4,7 @@ inputs:
   path:  # id of input
     description: 'Path to directory containing terraform files. Default is current working directory'
     required: true
-    default: ${{ env.GITHUB_WORKSPACE }}
+    default: '$GITHUB_WORKSPACE'
   workspace:
     description: 'terraform workspace'
     required: true

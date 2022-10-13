@@ -6,4 +6,6 @@ COPY --from=terraform /bin/terraform /bin/terraform
 
 RUN apk add --update bash
 
-CMD ["/bin/bash", "-c"]
+COPY entrypoint.sh /entrypoint.sh
+
+ENTRYPOINT ["/entrypoint.sh"]
