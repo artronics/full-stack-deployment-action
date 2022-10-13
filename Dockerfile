@@ -7,3 +7,4 @@ COPY --from=terraform /bin/terraform /bin/terraform
 COPY entrypoint.py /entrypoint.py
 
 ENTRYPOINT ["/entrypoint.py"]
+
