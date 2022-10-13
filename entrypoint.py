@@ -4,8 +4,8 @@ import subprocess
 import sys
 
 
-def run(cmd):
-    return subprocess.run(cmd.split(" "), capture_output=True, check=True)
+def run(cmd, capture=False):
+    return subprocess.run(cmd.split(" "), capture_output=capture, check=True)
 
 
 def terraform(chdir, op):
@@ -13,10 +13,10 @@ def terraform(chdir, op):
 
 
 def get_workspace(chdir):
-    p = run(terraform(chdir, "workspace show"))
+    p = run(terraform(chdir, "workspace show"), capture=True)
     current_ws = p.stdout.decode().strip()
 
-    p = run(terraform(chdir, "workspace list"))
+    p = run(terraform(chdir, "workspace list"), capture=True)
     ws_list = p.stdout.decode().split("\n")
     workspaces = [ws.strip() for ws in ws_list if ws != "" and current_ws not in ws]
     workspaces.append(current_ws)
