@@ -20,6 +20,7 @@ def get_workspace(chdir):
     p = run(terraform(chdir, "workspace list"), capture=True)
     ws_list = p.stdout.decode().split("\n")
     workspaces = [ws.strip() for ws in ws_list if ws != "" and current_ws not in ws]
+    # append current one separately because output adds an asterix (*) to the selected one
     workspaces.append(current_ws)
 
     return {
@@ -37,6 +38,7 @@ def deploy():
 
     opt = sys.argv[3]
     dryrun = sys.argv[4] == 'false'
+    print(f"dryrun |{sys.argv[4]}| {dryrun}")
 
     run(terraform(chdir, "init"))
 
