@@ -5,11 +5,12 @@ import sys
 
 
 def run(cmd, capture=False):
-    return subprocess.run(cmd.split(" "), capture_output=capture, check=True)
+    cmds = [opt.strip() for opt in cmd.split(" ") if opt.strip() != ""]
+    return subprocess.run(cmds, capture_output=capture, check=True)
 
 
-def terraform(chdir, op):
-    return f"terraform {chdir} {op}"
+def terraform(chdir, operation, opt=""):
+    return f"terraform {chdir} {operation} {opt}"
 
 
 def get_workspace(chdir):
@@ -28,12 +29,14 @@ def get_workspace(chdir):
 
 
 def deploy():
-    path = sys.argv[1]
-    chdir = f"-chdir={path}" if path else ""
+    path = sys.argv[1] if sys.argv[1] else os.getcwd()
+    chdir = f"-chdir={path}"
 
     workspace = sys.argv[2]
     has_workspace = not workspace == "default"
-    print(f"cwd: {os.getcwd()}")
+
+    opt = sys.argv[3]
+    dryrun = sys.argv[4] == 'false'
 
     run(terraform(chdir, "init"))
 
@@ -43,6 +46,12 @@ def deploy():
             run(terraform(chdir, f"workspace new {workspace}"))
         elif workspace != workspaces["current"]:
             run(terraform(chdir, f"workspace select {workspace}"))
+
+    if dryrun:
+        run(terraform(chdir, f"plan"))
+    else:
+        opt += " -auto-approve"
+        run(terraform(chdir, f"apply", opt=opt))
 
 
 if __name__ == '__main__':

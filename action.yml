@@ -9,6 +9,14 @@ inputs:
     description: 'terraform workspace'
     required: true
     default: 'default'
+  dryrun:
+    description: 'if true terraform plan will be executed and nothing will be deployed'
+    required: true
+    default: 'false'
+  options:
+    description: 'extra options to terraform such as -var=<value>'
+    required: true
+    default: ''
   aws_access_key_id:
     description: 'aws access key id'
     required: true
@@ -25,3 +33,5 @@ runs:
   args:
     - ${{ inputs.path }}
     - ${{ inputs.workspace }}
+    - ${{ inputs.options }}
+    - ${{ inputs.dryrun }}
