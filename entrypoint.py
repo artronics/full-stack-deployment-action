@@ -37,8 +37,7 @@ def deploy():
     has_workspace = not workspace == "default"
 
     opt = sys.argv[3]
-    dryrun = sys.argv[4] == 'false'
-    print(f"dryrun |{sys.argv[4]}| {dryrun}")
+    apply = sys.argv[4] == 'false'  # arg4 is dryrun. The result of boolean says if we do apply or plan
 
     run(terraform(chdir, "init"))
 
@@ -49,11 +48,11 @@ def deploy():
         elif workspace != workspaces["current"]:
             run(terraform(chdir, f"workspace select {workspace}"))
 
-    if dryrun:
-        run(terraform(chdir, f"plan"))
-    else:
+    if apply:
         opt += " -auto-approve"
         run(terraform(chdir, f"apply", opt=opt))
+    else:
+        run(terraform(chdir, f"plan"))
 
 
 if __name__ == '__main__':
