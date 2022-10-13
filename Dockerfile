@@ -1,8 +1,9 @@
-# Container image that runs your code
-FROM alpine:3.10
+FROM hashicorp/terraform:1.3.2 as terraform
+LABEL maintainer="Jalal Hosseini - @artronics"
 
-# Copies your code file from your action repository to the filesystem path `/` of the container
-COPY entrypoint.sh /entrypoint.sh
+FROM alpine:3.16.2
+COPY --from=terraform /bin/terraform /bin/terraform
 
-# Code file to execute when the docker container starts up (`entrypoint.sh`)
-ENTRYPOINT ["/entrypoint.sh"]
+RUN apk add --update bash
+
+CMD ["/bin/bash", "-c"]

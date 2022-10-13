@@ -1,10 +1,14 @@
 name: 'Hello World'
 description: 'Greet someone and record the time'
 inputs:
-  who-to-greet:  # id of input
-    description: 'Who to greet'
+  path:  # id of input
+    description: 'Path to directory containing terraform files. Default is current working directory'
     required: true
-    default: 'World'
+    default: ${{ env.GITHUB_WORKSPACE }}
+  workspace:
+    description: 'terraform workspace'
+    required: true
+    default: 'default'
 outputs:
   time: # id of output
     description: 'The time we greeted you'
@@ -12,4 +16,5 @@ runs:
   using: 'docker'
   image: 'Dockerfile'
   args:
-    - ${{ inputs.who-to-greet }}
+    - ${{ inputs.path }}
+    - ${{ inputs.workspace }}
