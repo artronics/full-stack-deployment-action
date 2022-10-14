@@ -4,13 +4,22 @@ import subprocess
 import sys
 
 
+def usage():
+    return """Usage:
+    NOTE: All 5 options are required.
+    command <path=""> <workspace=default> <options=""> <dryrun=false> <destroy=false>
+    
+    path       This is the directory that contains your terraform files. Pass empty string ("") for current working directory
+    workspace  This is the terraform workspace that will be created if necessary. Pass "default" if you don't want to create new one
+    options    This is any extra options that you want to pass to terraform command. For example "-var=foo=bar". Pass empty string ("") for no options
+    dryrun     If true terraform plan will be executed even if destroy option is true
+    destroy    If true terraform destroy will be executed. In case of dryrun terraform plan -destroy will be executed
+    """
+
+
 def run(cmd, capture=False):
     cmds = [opt.strip() for opt in cmd.split(" ") if opt.strip() != ""]
     return subprocess.run(cmds, capture_output=capture, check=True)
-
-
-# def terraform(chdir, operation, opt=""):
-#     return f"terraform {chdir} {operation} {opt}"
 
 
 def get_workspace(path):
@@ -23,20 +32,20 @@ def get_workspace(path):
     p = run(cmd("workspace list"), capture=True)
     ws_list = p.stdout.decode().split("\n")
     workspaces = [ws.strip() for ws in ws_list if ws != "" and current_ws not in ws]
-    # append current one separately because output adds an asterix (*) to the selected one
+    # append current one separately because, the terraform stdout adds an asterix (*) to the selected workspace
     workspaces.append(current_ws)
 
-    return {
-        "workspaces": workspaces,
-        "current": current_ws
-    }
+    return workspaces, current_ws
 
 
-def deploy():
+if __name__ == '__main__':
+    if len(sys.argv) < 5:
+        sys.exit(print(usage()))
+
     path = sys.argv[1] if sys.argv[1] else os.getcwd()
 
-    desire_ws = sys.argv[2]
-    has_workspace = not desire_ws == "default"
+    desired_ws = sys.argv[2]
+    has_workspace = not desired_ws == "default"
 
     extra_opt = sys.argv[3]
     apply = sys.argv[4] == 'false'  # arg4 is dryrun. The result of boolean says if we do apply or plan
@@ -54,17 +63,15 @@ def deploy():
 
     run(cmd("init"))
 
-    workspaces = get_workspace(path)
-    all_ws = workspaces["workspaces"]
-    current_ws = workspaces["current"]
-    if destroy and desire_ws not in all_ws:
-        sys.exit(f"request for destroying a workspace ({desire_ws}) that doesn't exist")
+    all_ws, current_ws = get_workspace(path)
+    if destroy and desired_ws not in all_ws:
+        sys.exit(f"request for destroying a workspace ({desired_ws}) that doesn't exist")
 
     if has_workspace:
-        if desire_ws not in all_ws:
-            run(cmd(f"workspace new {desire_ws}"))
-        elif desire_ws != current_ws:
-            run(cmd(f"workspace select {desire_ws}"))
+        if desired_ws not in all_ws:
+            run(cmd(f"workspace new {desired_ws}"))
+        elif desired_ws != current_ws:
+            run(cmd(f"workspace select {desired_ws}"))
 
     if apply:
         if destroy:
@@ -76,7 +83,3 @@ def deploy():
             run(cmd(f"plan -destroy"))
         else:
             run(cmd(f"plan"))
-
-
-if __name__ == '__main__':
-    deploy()
