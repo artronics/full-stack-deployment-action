@@ -9,15 +9,18 @@ def run(cmd, capture=False):
     return subprocess.run(cmds, capture_output=capture, check=True)
 
 
-def terraform(chdir, operation, opt=""):
-    return f"terraform {chdir} {operation} {opt}"
+# def terraform(chdir, operation, opt=""):
+#     return f"terraform {chdir} {operation} {opt}"
 
 
-def get_workspace(chdir):
-    p = run(terraform(chdir, "workspace show"), capture=True)
+def get_workspace(path):
+    def cmd(opt):
+        return f"terraform -chdir={path} {opt}"
+
+    p = run(cmd("workspace show"), capture=True)
     current_ws = p.stdout.decode().strip()
 
-    p = run(terraform(chdir, "workspace list"), capture=True)
+    p = run(cmd("workspace list"), capture=True)
     ws_list = p.stdout.decode().split("\n")
     workspaces = [ws.strip() for ws in ws_list if ws != "" and current_ws not in ws]
     # append current one separately because output adds an asterix (*) to the selected one
@@ -31,28 +34,43 @@ def get_workspace(chdir):
 
 def deploy():
     path = sys.argv[1] if sys.argv[1] else os.getcwd()
-    chdir = f"-chdir={path}"
 
     workspace = sys.argv[2]
     has_workspace = not workspace == "default"
 
-    opt = sys.argv[3]
+    extra_opt = sys.argv[3]
     apply = sys.argv[4] == 'false'  # arg4 is dryrun. The result of boolean says if we do apply or plan
 
-    run(terraform(chdir, "init"))
+    destroy_arg = sys.argv[5]
+    if destroy_arg == 'true':
+        destroy = True
+    elif destroy_arg == 'false':
+        destroy = False
+    else:
+        sys.exit("destroy options must be set explicitly and correctly. Either \"true\" or \"false\"")
+
+    def cmd(opt):
+        return f"terraform -chdir={path} {opt} {extra_opt}"
+
+    run(cmd("init"))
 
     if has_workspace:
-        workspaces = get_workspace(chdir)
+        workspaces = get_workspace(path)
         if workspace not in workspaces["workspaces"]:
-            run(terraform(chdir, f"workspace new {workspace}"))
+            run(cmd(f"workspace new {workspace}"))
         elif workspace != workspaces["current"]:
-            run(terraform(chdir, f"workspace select {workspace}"))
+            run(cmd(f"workspace select {workspace}"))
 
     if apply:
-        opt += " -auto-approve"
-        run(terraform(chdir, f"apply", opt=opt))
+        if destroy:
+            run(cmd(f"destroy -auto-approve"))
+        else:
+            run(cmd(f"apply -auto-approve"))
     else:
-        run(terraform(chdir, f"plan"))
+        if destroy:
+            run(cmd(f"plan -destroy"))
+        else:
+            run(cmd(f"plan"))
 
 
 if __name__ == '__main__':

@@ -10,7 +10,11 @@ inputs:
     required: true
     default: 'default'
   dryrun:
-    description: 'if true terraform plan will be executed and nothing will be deployed'
+    description: 'if true terraform plan will be executed and nothing will be deployed. In case of destroy=true it will print plan for destroy'
+    required: true
+    default: 'false'
+  destroy:
+    description: 'if true it will run terraform destroy. It WONT ask for confirmation.'
     required: true
     default: 'false'
   options:
@@ -35,3 +39,4 @@ runs:
     - ${{ inputs.workspace }}
     - ${{ inputs.options }}
     - ${{ inputs.dryrun }}
+    - ${{ inputs.destroy }}
