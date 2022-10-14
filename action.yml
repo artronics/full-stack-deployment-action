@@ -1,4 +1,4 @@
-name: 'Terraform Deploy'
+name: 'Terraform Flow'
 description: 'Deploy terraform with custom workspace'
 inputs:
   path:
