@@ -35,8 +35,8 @@ def get_workspace(path):
 def deploy():
     path = sys.argv[1] if sys.argv[1] else os.getcwd()
 
-    workspace = sys.argv[2]
-    has_workspace = not workspace == "default"
+    desire_ws = sys.argv[2]
+    has_workspace = not desire_ws == "default"
 
     extra_opt = sys.argv[3]
     apply = sys.argv[4] == 'false'  # arg4 is dryrun. The result of boolean says if we do apply or plan
@@ -54,12 +54,17 @@ def deploy():
 
     run(cmd("init"))
 
+    workspaces = get_workspace(path)
+    all_ws = workspaces["workspaces"]
+    current_ws = workspaces["current"]
+    if destroy and desire_ws not in all_ws:
+        sys.exit(f"request for destroying a workspace ({desire_ws}) that doesn't exist")
+
     if has_workspace:
-        workspaces = get_workspace(path)
-        if workspace not in workspaces["workspaces"]:
-            run(cmd(f"workspace new {workspace}"))
-        elif workspace != workspaces["current"]:
-            run(cmd(f"workspace select {workspace}"))
+        if desire_ws not in all_ws:
+            run(cmd(f"workspace new {desire_ws}"))
+        elif desire_ws != current_ws:
+            run(cmd(f"workspace select {desire_ws}"))
 
     if apply:
         if destroy:
