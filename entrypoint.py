@@ -14,7 +14,7 @@ def usage():
     --options            This is any extra options that you want to pass to terraform command. For example "-var=foo=bar". Pass empty string ("") for no options
     --dryrun             If true terraform plan will be executed even if destroy option is true
     --destroy            If true terraform destroy will be executed. In case of dryrun terraform plan -destroy will be executed
-    --destroy_workspace  If true then it will delete workspace as the final step when destroying. It switches to the "default" workspace before deleting current one
+    --destroy-workspace  If true then it will delete workspace as the final step when destroying. It switches to the "default" workspace before deleting current one
     """
 
 
