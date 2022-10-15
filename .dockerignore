@@ -1,0 +1,5 @@
+.env
+.github
+.idea
+.venv
+terraform-test

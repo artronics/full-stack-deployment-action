@@ -17,6 +17,10 @@ inputs:
     description: 'if true it will run terraform destroy. It WONT ask for confirmation.'
     required: true
     default: 'false'
+  destroy_workspace:
+    description: 'If true then it will delete workspace as the final step when destroying. It switches to the "default" workspace before deleting current one'
+    required: true
+    default: 'false'
   options:
     description: 'extra options to terraform such as -var=<value>'
     required: true
@@ -35,8 +39,9 @@ runs:
     AWS_ACCESS_KEY_ID: ${{ inputs.aws_access_key_id }}
     AWS_SECRET_ACCESS_KEY: ${{ inputs.aws_secret_access_key }}
   args:
-    - ${{ inputs.path }}
-    - ${{ inputs.workspace }}
-    - ${{ inputs.options }}
-    - ${{ inputs.dryrun }}
-    - ${{ inputs.destroy }}
+    - --path=${{ inputs.path }}
+    - --workspace=${{ inputs.workspace }}
+    - --options=${{ inputs.options }}
+    - --dryrun=${{ inputs.dryrun }}
+    - --destroy=${{ inputs.destroy }}
+    - --destroy-workspace=${{ inputs.destroy_workspace }}
