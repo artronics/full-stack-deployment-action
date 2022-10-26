@@ -39,6 +39,11 @@ def get_workspace(path):
     return workspaces, current_ws
 
 
+# TODO: features;
+#  add retry
+#  add timeout
+# FIXME: improvements:
+#  add cmd parser to make optional non-positional args
 if __name__ == '__main__':
     if len(sys.argv) < 7:
         sys.exit(usage())
